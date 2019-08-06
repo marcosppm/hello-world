@@ -11,12 +11,12 @@ interface IState {
 interface IProps {}
 
 export default class HelloWorldApp extends Component<IProps, IState> {
-  constructor(props) {
+  constructor(props: IProps) {
     super(props);
     this.state = {email:"", password:"", errorMessage:""};
   }
 
-  validateEmailAndPassword():void {
+  validateEmailAndPassword(): void {
     const regexEmail:RegExp = /([A-Za-z])+@([A-Za-z])+.com/gm;
     const regexOneCharAndOneDigit:RegExp = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
     if (this.state.email.length == 0) {
