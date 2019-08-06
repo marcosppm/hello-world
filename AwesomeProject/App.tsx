@@ -4,14 +4,24 @@ import { Text, View, TextInput, Button } from 'react-native';
 
 import { AppRegistry } from 'react-native';
 import { ApolloClient } from 'apollo-client';
-import { ApolloProvider } from "@apollo/react-hooks";
+import { ApolloProvider } from 'react-apollo';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { createHttpLink } from 'apollo-link-http';
 import gql from "graphql-tag";
 import { Mutation } from 'react-apollo';
 
+export interface IProps { }
 
+interface IState {
+  email?: string
+  password?: string
+  errorMessage?: string
+  token?: string
+}
 
 const client = new ApolloClient({
-  uri: "https://tq-template-server-sample.herokuapp.com/graphql"
+  link: createHttpLink({ uri: "https://tq-template-server-sample.herokuapp.com/graphql" }),
+  cache: new InMemoryCache()
 });
 
 const ApolloApp = AppComponent => (
@@ -19,17 +29,18 @@ const ApolloApp = AppComponent => (
     <HelloWorldApp />
   </ApolloProvider>
 );
+AppRegistry.registerComponent('HelloWorldApp', () => ApolloApp);
 
-
-export default class HelloWorldApp extends Component {
-  constructor(props) {
+export default class HelloWorldApp extends Component<IProps, IState> {
+  constructor(props: IProps) {
     super(props);
     this.state = {email:"", password:"", errorMessage:"", token:""};
   }
 
   validateEmailAndPassword() {
-    let regexEmail = /([A-Za-z])+@([A-Za-z])+.com/gm;
-    let regexOneCharAndOneDigit = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
+    let regexEmail: RegExp = /([A-Za-z])+@([A-Za-z])+.com/gm;
+    let regexOneCharAndOneDigit: RegExp = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
+    let tokenReceived: string;
     if (this.state.email.length == 0) {
       this.setState({ errorMessage: "E-mail obrigatório." });
       return;
@@ -48,7 +59,7 @@ export default class HelloWorldApp extends Component {
       if (!regexOneCharAndOneDigit.test(this.state.password)) {
         this.setState({ errorMessage: "A senha deve conter pelo menos um caracter e um dígito"});
       } else {
-        tokenReceived = this.getToken();
+        tokenReceived: this.getToken();
         this.setState({ token: tokenReceived, errorMessage: "Token: " + tokenReceived });
       }
     }
@@ -81,7 +92,7 @@ export default class HelloWorldApp extends Component {
           </Text>
         </View>
 
-        <View style={{ alignItems: 'left' }}>
+        <View style={{ alignItems: 'baseline' }}>
           <Text style={{ fontSize: 15, marginBottom: 5 }}>E-mail:</Text>
 
           <TextInput
