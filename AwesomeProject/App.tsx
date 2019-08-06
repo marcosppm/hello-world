@@ -31,13 +31,31 @@ const ApolloApp = AppComponent => (
 );
 AppRegistry.registerComponent('HelloWorldApp', () => ApolloApp);
 
+function sendRequest(): void {
+  <Mutation mutation={gql`
+    mutation {
+      Login(data:{email:"${this.state.email}", password:"${this.state.password}"}) {
+        token
+      }
+    }
+  `}>
+
+    {(login, { loading, error, data }) => {
+      if (loading) return "Loading...";
+      if (error) return "Error :(";
+
+      return data.token;
+    }}
+  </Mutation>
+}
+
 export default class HelloWorldApp extends Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
-    this.state = {email:"", password:"", errorMessage:"", token:""};
+    this.state = { email: "", password: "", errorMessage: "", token: "" };
   }
 
-  validateEmailAndPassword() {
+  validateEmailAndPassword(): void {
     let regexEmail: RegExp = /([A-Za-z])+@([A-Za-z])+.com/gm;
     let regexOneCharAndOneDigit: RegExp = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
     let tokenReceived: string;
@@ -57,76 +75,72 @@ export default class HelloWorldApp extends Component<IProps, IState> {
       this.setState({ errorMessage: "A senha deve ter pelo menos 7 caracteres." });
     } else {
       if (!regexOneCharAndOneDigit.test(this.state.password)) {
-        this.setState({ errorMessage: "A senha deve conter pelo menos um caracter e um dígito"});
+        this.setState({ errorMessage: "A senha deve conter pelo menos um caracter e um dígito" });
       } else {
-        tokenReceived: this.getToken();
+
         this.setState({ token: tokenReceived, errorMessage: "Token: " + tokenReceived });
       }
     }
   }
 
-  getToken() {
-    <Mutation mutation={gql`
-      mutation {
-        Login(data:{email:"${this.state.email}", password:"${this.state.password}"}) {
-          token
-        }
-      }
-    `}>
-
-      {({ loading, error, data }) => {
-        if (loading) return "Loading...";
-        if (error) return "Error :(";
-  
-        return data.token;
-      }}
-    </Mutation>
-  }
-
-  render() {
+  render() { // login is a function to be calld when the event is fired
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <View style={{ marginBottom: 15 }}>
-          <Text style={{ fontSize: 33, fontWeight: 'bold' }}>
-            Bem-vindo(a) à Taqtile!
+      <Mutation mutation={gql`
+          mutation {
+            Login(data:{email:"${this.state.email}", password:"${this.state.password}"}) {
+              token
+            }
+          }
+        `}>
+        {(login, { loading, error, data }) => {
+
+
+          return (<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ marginBottom: 15 }}>
+              <Text style={{ fontSize: 33, fontWeight: 'bold' }}>
+                Bem-vindo(a) à Taqtile!
           </Text>
-        </View>
+            </View>
 
-        <View style={{ alignItems: 'baseline' }}>
-          <Text style={{ fontSize: 15, marginBottom: 5 }}>E-mail:</Text>
+            <View style={{ alignItems: 'baseline' }}>
+              <Text style={{ fontSize: 15, marginBottom: 5 }}>E-mail:</Text>
 
-          <TextInput
-            style={{height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 15 }}
-            autoCompleteType='email'
-            autoCapitalize = 'none'
-            onChangeText={(inputText) => this.setState({email: inputText})}
-          />
+              <TextInput
+                style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 15 }}
+                autoCompleteType='email'
+                autoCapitalize='none'
+                onChangeText={(inputText) => this.setState({ email: inputText })}
+              />
 
-          <Text style={{ fontSize: 15, marginBottom: 5 }}>Senha:</Text>
+              <Text style={{ fontSize: 15, marginBottom: 5 }}>Senha:</Text>
 
-          <TextInput
-            style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 15 }}
-            autoCompleteType='password'
-            autoCapitalize = 'none'
-            underlineColorAndroid='transparent'
-            secureTextEntry={true}
-            onChangeText={(inputText) => this.setState({password: inputText})}
-          />
+              <TextInput
+                style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 15 }}
+                autoCompleteType='password'
+                autoCapitalize='none'
+                underlineColorAndroid='transparent'
+                secureTextEntry={true}
+                onChangeText={(inputText) => this.setState({ password: inputText })}
+              />
 
-        </View>
+            </View>
 
-        <View style={{ marginBottom: 15 }}>
-          <Button
-              onPress={() => this.validateEmailAndPassword()}
-              title="Entrar"
-              color="#9400D3"
-            />
-        </View>
+            <View style={{ marginBottom: 15 }}>
+              <Button
+                onPress={() => login()}
+                title="Entrar"
+                color="#9400D3"
+              />
+            </View>
 
-        <View>
-          <Text style={{ fontSize: 15, color:"#FF0000" }}>{this.state.errorMessage}</Text>
-        </View>
-      </View>
+            <View>
+              <Text style={{ fontSize: 15, color: "#FF0000" }}>{this.state.errorMessage}</Text>
+            </View>
+          </View>);
+        }}
+
+
+      </Mutation>
     );
   }
 }
