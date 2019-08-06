@@ -1,15 +1,24 @@
-import React, { Component } from 'react';
+import React from 'react'
+import { Component } from 'react';
 import { Text, View, TextInput, Button } from 'react-native';
 
-export default class HelloWorldApp extends Component {
+interface IState {
+  email?: string;
+  password?: string;
+  errorMessage?: string;
+}
+
+interface IProps {}
+
+export default class HelloWorldApp extends Component<IProps, IState> {
   constructor(props) {
     super(props);
     this.state = {email:"", password:"", errorMessage:""};
   }
 
-  validateEmailAndPassword() {
-    let regexEmail = /([A-Za-z])+@([A-Za-z])+.com/gm;
-    let regexOneCharAndOneDigit = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
+  validateEmailAndPassword():void {
+    const regexEmail:RegExp = /([A-Za-z])+@([A-Za-z])+.com/gm;
+    const regexOneCharAndOneDigit:RegExp = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
     if (this.state.email.length == 0) {
       this.setState({ errorMessage: "E-mail obrigatório." });
       return;
@@ -42,7 +51,7 @@ export default class HelloWorldApp extends Component {
           </Text>
         </View>
 
-        <View style={{ alignItems: 'left' }}>
+        <View style={{ alignItems: 'baseline' }}>
           <Text style={{ fontSize: 15, marginBottom: 5 }}>E-mail:</Text>
 
           <TextInput
