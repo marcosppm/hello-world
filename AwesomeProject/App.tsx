@@ -1,7 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react'
+import { Component } from 'react';
 import { Text, View, TextInput, Button } from 'react-native';
 
-export default class HelloWorldApp extends Component {
+interface IProps { }
+
+interface IState { }
+
+export default class HelloWorldApp extends Component<IProps, IState> {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -11,7 +16,7 @@ export default class HelloWorldApp extends Component {
           </Text>
         </View>
 
-        <View style={{ alignItems: 'left' }}>
+        <View style={{ alignItems: 'baseline' }}>
           <Text style={{ fontSize: 15, marginBottom: 5 }}>E-mail:</Text>
 
           <TextInput
@@ -34,9 +39,12 @@ export default class HelloWorldApp extends Component {
           <Button
               title="Entrar"
               color="#9400D3"
+              onPress={() => this.doNothing()}
             />
         </View>
       </View>
     );
   }
+
+  doNothing(): void { }
 }
