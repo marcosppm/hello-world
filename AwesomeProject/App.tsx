@@ -10,9 +10,9 @@ import { createHttpLink } from 'apollo-link-http';
 import gql from "graphql-tag";
 import { Mutation } from 'react-apollo';
 
-export interface IProps { }
+export interface HelloWorldAppProps { }
 
-interface IState {
+interface HelloWorldAppState {
   email?: string
   password?: string
   errorMessage?: string
@@ -31,75 +31,48 @@ const ApolloApp = AppComponent => (
 );
 AppRegistry.registerComponent('HelloWorldApp', () => ApolloApp);
 
-function sendRequest(): void {
-  <Mutation mutation={gql`
-    mutation {
-      Login(data:{email:"${this.state.email}", password:"${this.state.password}"}) {
-        token
-      }
-    }
-  `}>
-
-    {(login, { loading, error, data }) => {
-      if (loading) return "Loading...";
-      if (error) return "Error :(";
-
-      return data.token;
-    }}
-  </Mutation>
-}
-
-export default class HelloWorldApp extends Component<IProps, IState> {
-  constructor(props: IProps) {
+export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWorldAppState> {
+  constructor(props: HelloWorldAppProps) {
     super(props);
     this.state = { email: "", password: "", errorMessage: "", token: "" };
   }
 
-  validateEmailAndPassword(): void {
+  login(tokenReceived: string): void {
     let regexEmail: RegExp = /([A-Za-z])+@([A-Za-z])+.com/gm;
     let regexOneCharAndOneDigit: RegExp = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
-    let tokenReceived: string;
-    if (this.state.email.length == 0) {
+    if (!this.state.email) {
       this.setState({ errorMessage: "E-mail obrigatório." });
-      return;
-    } else {
-      if (!regexEmail.test(this.state.email)) {
-        this.setState({ errorMessage: "Formato do e-mail deve ser: ###@###.com" });
-        return;
-      }
-    }
-
-    if (this.state.password.length == 0) {
+    } else if (!regexEmail.test(this.state.email)) {
+      this.setState({ errorMessage: "Formato do e-mail deve ser: ###@###.com" });
+    } else if (!this.state.password) {
       this.setState({ errorMessage: "Senha obrigatória." });
     } else if (this.state.password.length < 7) {
       this.setState({ errorMessage: "A senha deve ter pelo menos 7 caracteres." });
+    } else if (!regexOneCharAndOneDigit.test(this.state.password)) {
+      this.setState({ errorMessage: "A senha deve conter pelo menos um caracter e um dígito" });
     } else {
-      if (!regexOneCharAndOneDigit.test(this.state.password)) {
-        this.setState({ errorMessage: "A senha deve conter pelo menos um caracter e um dígito" });
-      } else {
-
-        this.setState({ token: tokenReceived, errorMessage: "Token: " + tokenReceived });
-      }
+      this.setState({
+        token: tokenReceived, 
+        errorMessage: "Token: " + tokenReceived });
     }
   }
 
-  render() { // login is a function to be calld when the event is fired
+  render() {
     return (
       <Mutation mutation={gql`
           mutation {
-            Login(data:{email:"${this.state.email}", password:"${this.state.password}"}) {
+            Login(data:{email:"admin@taqtile.com", password:"1234qwer"}) {
               token
             }
           }
-        `}>
-        {(login, { loading, error, data }) => {
-
-
-          return (<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      `}>
+        {({ loading, error, data }) => {
+          return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <View style={{ marginBottom: 15 }}>
               <Text style={{ fontSize: 33, fontWeight: 'bold' }}>
                 Bem-vindo(a) à Taqtile!
-          </Text>
+              </Text>
             </View>
 
             <View style={{ alignItems: 'baseline' }}>
@@ -127,19 +100,17 @@ export default class HelloWorldApp extends Component<IProps, IState> {
 
             <View style={{ marginBottom: 15 }}>
               <Button
-                onPress={() => login()}
                 title="Entrar"
                 color="#9400D3"
+                onPress={() => this.login( data )}
               />
             </View>
 
-            <View>
+            <View style={{ alignItems: 'baseline' }}>
               <Text style={{ fontSize: 15, color: "#FF0000" }}>{this.state.errorMessage}</Text>
             </View>
           </View>);
         }}
-
-
       </Mutation>
     );
   }
